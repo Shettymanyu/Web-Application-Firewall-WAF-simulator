@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WAF Simulator — Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root { color-scheme: dark; }
+    body { background: #0a0e1a; }
+    .severity-critical { color: #f87171; }
+    .severity-high     { color: #fb923c; }
+    .severity-medium   { color: #facc15; }
+    .severity-low      { color: #60a5fa; }
+    .badge-critical { background:#7f1d1d; color:#fca5a5; }
+    .badge-high     { background:#7c2d12; color:#fdba74; }
+    .badge-medium   { background:#713f12; color:#fde047; }
+    .badge-low      { background:#1e3a5f; color:#93c5fd; }
+    .badge-blocked  { background:#7f1d1d; color:#fca5a5; }
+    .badge-allowed  { background:#14532d; color:#86efac; }
+    .row-blocked { background: rgba(127,29,29,0.2); }
+    .row-allowed { background: rgba(20,83,45,0.1); }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #1e2535; }
+    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+    .pulse-dot { animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .slide-in { animation: slideIn 0.3s ease-out; }
+    @keyframes slideIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+    .card { background: #111827; border: 1px solid #1f2937; border-radius: 12px; }
+    .nav-link { color: #9ca3af; transition: color .2s; }
+    .nav-link:hover { color: #fff; }
+    textarea, input, select {
+      background: #1f2937 !important;
+      border: 1px solid #374151 !important;
+      color: #f3f4f6 !important;
+    }
+    textarea:focus, input:focus, select:focus {
+      outline: none !important;
+      border-color: #3b82f6 !important;
+    }
+  </style>
+</head>
+<body class="text-gray-100 font-sans">
+
+<!-- NAV -->
+<nav class="fixed top-0 left-0 right-0 z-50 border-b border-gray-800" style="background:#060b16cc;backdrop-filter:blur(12px)">
+  <div class="max-w-screen-2xl mx-auto px-4 h-14 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">🛡️</span>
+      <span class="font-bold text-lg tracking-tight">WAF Simulator</span>
+      <span class="text-gray-600 text-sm hidden sm:block">/ Dashboard</span>
+    </div>
+    <div class="flex items-center gap-6 text-sm">
+      <a href="#inspector" class="nav-link">Inspector</a>
+      <a href="#log" class="nav-link">Attack Log</a>
+      <a href="#rules" class="nav-link">Rules</a>
+      <a href="#charts" class="nav-link">Stats</a>
+      <a href="/target" target="_blank"
+         class="bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
+        Target App ↗
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="max-w-screen-2xl mx-auto px-4 pt-20 pb-12">
+
+  <!-- STATS BAR -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="card p-4">
+      <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">Total Requests</div>
+      <div class="text-3xl font-bold" id="stat-total">0</div>
+      <div class="text-xs text-gray-600 mt-1">Since server start</div>
+    </div>
+    <div class="card p-4">
+      <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">Blocked</div>
+      <div class="text-3xl font-bold text-red-400" id="stat-blocked">0</div>
+      <div class="text-xs text-gray-600 mt-1" id="stat-block-rate">0% block rate</div>
+    </div>
+    <div class="card p-4">
+      <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">Allowed</div>
+      <div class="text-3xl font-bold text-green-400" id="stat-allowed">0</div>
+      <div class="text-xs text-gray-600 mt-1">Clean requests</div>
+    </div>
+    <div class="card p-4">
+      <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">Top Threat</div>
+      <div class="text-lg font-bold text-yellow-400 truncate" id="stat-top-threat">—</div>
+      <div class="text-xs text-gray-600 mt-1">Most triggered rule</div>
+    </div>
+  </div>
+
+  <!-- GRID: Inspector + Log -->
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+
+    <!-- REQUEST INSPECTOR -->
+    <section id="inspector" class="card p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-semibold text-base flex items-center gap-2">
+          <span>🔍</span> Request Inspector
+        </h2>
+        <span class="text-xs text-gray-500">Test any payload against the WAF</span>
+      </div>
+
+      <!-- Payload library -->
+      <div class="mb-3">
+        <div class="text-xs text-gray-500 mb-2 uppercase tracking-wider">Sample Attack Payloads</div>
+        <div id="payload-buttons" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <form id="inspector-form" class="space-y-3">
+        <div class="flex gap-2">
+          <select id="insp-method" class="w-28 px-3 py-2 rounded-lg text-sm">
+            <option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option>
+          </select>
+          <input id="insp-path" type="text" placeholder="/target/search?q=test"
+                 class="flex-1 px-3 py-2 rounded-lg text-sm" value="/target/search?q=test">
+        </div>
+        <textarea id="insp-headers" rows="2" placeholder="Accept: text/html&#10;User-Agent: Mozilla/5.0"
+                  class="w-full px-3 py-2 rounded-lg text-sm font-mono resize-none"></textarea>
+        <textarea id="insp-body" rows="3" placeholder="Request body (optional)"
+                  class="w-full px-3 py-2 rounded-lg text-sm font-mono resize-none"></textarea>
+        <button type="submit"
+                class="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 py-2.5 rounded-lg font-semibold text-sm transition-colors flex items-center justify-center gap-2">
+          <span id="insp-btn-text">Send Request →</span>
+        </button>
+      </form>
+
+      <!-- Result panel -->
+      <div id="inspector-result" class="hidden mt-4 rounded-xl overflow-hidden border border-gray-700">
+        <div id="insp-result-banner" class="px-4 py-3 font-bold text-sm flex items-center gap-2"></div>
+        <div class="bg-gray-900 p-4 text-sm space-y-2" id="insp-result-details"></div>
+      </div>
+    </section>
+
+    <!-- LIVE ATTACK LOG -->
+    <section id="log" class="card p-5 flex flex-col" style="min-height:420px">
+      <div class="flex items-center justify-between mb-4 flex-shrink-0">
+        <h2 class="font-semibold text-base flex items-center gap-2">
+          <span class="inline-block w-2 h-2 rounded-full bg-green-400 pulse-dot"></span>
+          Live Attack Log
+        </h2>
+        <div class="flex items-center gap-2">
+          <select id="log-severity-filter" class="text-xs px-2 py-1 rounded-lg">
+            <option value="">All Severity</option>
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+          </select>
+          <select id="log-action-filter" class="text-xs px-2 py-1 rounded-lg">
+            <option value="">All Actions</option>
+            <option value="BLOCKED">Blocked</option>
+            <option value="ALLOWED">Allowed</option>
+          </select>
+          <button id="log-clear-btn" class="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded-lg transition-colors">
+            Clear
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 overflow-auto" style="max-height:340px">
+        <table class="w-full text-xs border-collapse">
+          <thead class="sticky top-0" style="background:#111827">
+            <tr class="text-gray-500 text-left">
+              <th class="pb-2 pr-3 font-medium">Time</th>
+              <th class="pb-2 pr-3 font-medium">IP</th>
+              <th class="pb-2 pr-3 font-medium">Method</th>
+              <th class="pb-2 pr-3 font-medium">Path</th>
+              <th class="pb-2 pr-3 font-medium">Action</th>
+              <th class="pb-2 pr-3 font-medium">Rule</th>
+              <th class="pb-2 font-medium">Sev.</th>
+            </tr>
+          </thead>
+          <tbody id="log-tbody">
+            <tr>
+              <td colspan="7" class="text-center text-gray-600 py-8">
+                Waiting for requests...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-2 text-xs text-gray-600 flex-shrink-0" id="log-count">0 entries</div>
+    </section>
+  </div>
+
+  <!-- GRID: Rules + Charts -->
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+    <!-- RULE MANAGER -->
+    <section id="rules" class="card p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-semibold text-base flex items-center gap-2">
+          <span>⚙️</span> Rule Manager
+        </h2>
+        <span class="text-xs text-gray-500">Toggle rules to test bypass scenarios</span>
+      </div>
+      <div id="rules-list" class="space-y-3"></div>
+    </section>
+
+    <!-- STATISTICS CHARTS -->
+    <section id="charts" class="card p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-semibold text-base flex items-center gap-2">
+          <span>📊</span> Attack Statistics
+        </h2>
+        <span class="text-xs text-gray-500" id="chart-last-update">Updating every 5s</span>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <div class="text-xs text-gray-500 mb-2 text-center">Attack Type Breakdown</div>
+          <div style="height:180px; position:relative;">
+            <canvas id="chart-doughnut"></canvas>
+          </div>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500 mb-2 text-center">Requests Over Time</div>
+          <div style="height:180px; position:relative;">
+            <canvas id="chart-line"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+</main>
+
+<script src="/static/js/payloads.js"></script>
+<script src="/static/js/charts.js"></script>
+<script src="/static/js/attack_log.js"></script>
+<script src="/static/js/rule_manager.js"></script>
+<script src="/static/js/request_inspector.js"></script>
+<script src="/static/js/dashboard.js"></script>
+</body>
+</html>

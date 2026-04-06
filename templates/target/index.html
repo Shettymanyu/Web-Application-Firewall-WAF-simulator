@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Target App — WAF Simulator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="text-xl">🎯</span>
+      <span class="font-semibold">Target App</span>
+      <span class="text-xs bg-yellow-900 text-yellow-300 px-2 py-0.5 rounded-full">Vulnerable Demo</span>
+    </div>
+    <a href="/dashboard" class="text-xs bg-blue-700 hover:bg-blue-600 px-3 py-1.5 rounded-lg transition-colors">
+      WAF Dashboard →
+    </a>
+  </nav>
+
+  <div class="max-w-3xl mx-auto px-4 py-10">
+    <div class="bg-yellow-900/30 border border-yellow-700 rounded-xl p-4 mb-8 text-sm text-yellow-200">
+      ⚠️ <strong>Educational Demo Only.</strong> This app simulates vulnerable surfaces to test WAF rules.
+      No real code is executed — all outputs are simulated. Use the WAF dashboard to block or allow attacks.
+    </div>
+
+    <h1 class="text-3xl font-bold mb-2">Intentionally Vulnerable App</h1>
+    <p class="text-gray-400 mb-8">Select an attack surface below to test the WAF rules. Each page demonstrates a different vulnerability class.</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <a href="/target/login" class="card-link group block bg-gray-900 border border-gray-800 hover:border-red-500 rounded-xl p-5 transition-all">
+        <div class="text-2xl mb-2">🔐</div>
+        <div class="font-semibold mb-1">Login Form</div>
+        <div class="text-xs text-gray-500 mb-2">SQL Injection surface</div>
+        <div class="text-xs text-red-400 font-mono">WAF-001 · Critical</div>
+      </a>
+      <a href="/target/search?q=hello" class="card-link group block bg-gray-900 border border-gray-800 hover:border-orange-500 rounded-xl p-5 transition-all">
+        <div class="text-2xl mb-2">🔎</div>
+        <div class="font-semibold mb-1">Search Page</div>
+        <div class="text-xs text-gray-500 mb-2">Cross-Site Scripting (XSS) surface</div>
+        <div class="text-xs text-orange-400 font-mono">WAF-002 · High</div>
+      </a>
+      <a href="/target/files?file=readme.txt" class="card-link group block bg-gray-900 border border-gray-800 hover:border-orange-500 rounded-xl p-5 transition-all">
+        <div class="text-2xl mb-2">📁</div>
+        <div class="font-semibold mb-1">File Viewer</div>
+        <div class="text-xs text-gray-500 mb-2">Path Traversal surface</div>
+        <div class="text-xs text-orange-400 font-mono">WAF-003 · High</div>
+      </a>
+      <a href="/target/cmd?host=8.8.8.8" class="card-link group block bg-gray-900 border border-gray-800 hover:border-red-500 rounded-xl p-5 transition-all">
+        <div class="text-2xl mb-2">💻</div>
+        <div class="font-semibold mb-1">Diagnostics</div>
+        <div class="text-xs text-gray-500 mb-2">Command Injection surface</div>
+        <div class="text-xs text-red-400 font-mono">WAF-004 · Critical</div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

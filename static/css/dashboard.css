@@ -1,0 +1,32 @@
+/* Additional styles not easily expressed in Tailwind utility classes */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Smooth toggle transitions */
+.toggle-btn {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+/* Log table row hover */
+#log-tbody tr:hover {
+  filter: brightness(1.15);
+  transition: filter 0.15s ease;
+}
+
+/* Payload button active press feel */
+#payload-buttons button:active {
+  transform: scale(0.96);
+}
+
+/* Inspector result highlight animation */
+#inspector-result {
+  transition: opacity 0.2s ease;
+}
+
+/* Chart canvas cursor */
+canvas {
+  cursor: default;
+}

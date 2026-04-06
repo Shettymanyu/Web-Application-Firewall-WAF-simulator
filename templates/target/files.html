@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>File Viewer — Target App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="/target" class="text-gray-400 hover:text-white text-sm">← Target App</a>
+      <span class="text-gray-700">/</span>
+      <span class="font-semibold text-sm">File Viewer</span>
+      <span class="text-xs bg-orange-900 text-orange-300 px-2 py-0.5 rounded-full">Path Traversal</span>
+    </div>
+    <a href="/dashboard" class="text-xs bg-blue-700 hover:bg-blue-600 px-3 py-1.5 rounded-lg transition-colors">WAF Dashboard →</a>
+  </nav>
+  <div class="max-w-2xl mx-auto px-4 py-10">
+    <div class="bg-orange-900/20 border border-orange-800 rounded-xl p-4 mb-6 text-sm text-orange-200">
+      <strong>🎯 Attack Surface:</strong> Path Traversal — The <code class="bg-orange-950/60 px-1 rounded">?file=</code> parameter is used to read files.
+      <div class="mt-2 font-mono text-xs text-orange-300 bg-orange-950/50 px-3 py-2 rounded-lg">
+        Try: <span class="text-yellow-300">../../etc/passwd</span>
+      </div>
+    </div>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6">
+      <h2 class="text-base font-semibold mb-4">📁 File Viewer</h2>
+      <form method="GET" action="/target/files" class="flex gap-3">
+        <input type="text" name="file" value="{{ filepath | e }}" placeholder="filename.txt"
+               class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none font-mono">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-500 px-5 py-2.5 rounded-lg font-semibold text-sm transition-colors">Read File</button>
+      </form>
+    </div>
+    {% if content %}
+    <div class="bg-green-900/30 border border-green-700 rounded-xl p-4 text-sm">
+      <div class="font-bold text-green-400 mb-2">✅ Request reached target app (WAF allowed it)</div>
+      <div class="font-mono text-xs bg-gray-900 px-4 py-3 rounded-lg text-gray-300 whitespace-pre-wrap">{{ content | e }}</div>
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>
