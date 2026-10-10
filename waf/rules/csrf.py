@@ -58,3 +58,4 @@ class CSRFRule(BaseRule):
                 pattern="Missing or invalid CSRF token",
             )
         return None
+
