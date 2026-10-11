@@ -162,3 +162,4 @@ function injectPayload(p) {
   // Scroll to inspector
   document.getElementById("inspector")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
+
