@@ -54,3 +54,4 @@ class XSSRule(BaseRule):
                         pattern=label,
                     )
         return None
+
