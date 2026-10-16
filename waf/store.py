@@ -154,4 +154,3 @@ class WAFStore:
     def set_bucket(self, ip: str, bucket: dict):
         with self._lock:
             self._rate_buckets[ip] = bucket
-
