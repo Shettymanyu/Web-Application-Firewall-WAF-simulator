@@ -47,3 +47,4 @@ class RateLimitRule(BaseRule):
         if self._store:
             self._store.set_bucket(ip, bucket)
         return None
+
