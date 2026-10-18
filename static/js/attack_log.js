@@ -96,3 +96,4 @@ function initAttackLog() {
     rebuildLogTable();
   });
 }
+
