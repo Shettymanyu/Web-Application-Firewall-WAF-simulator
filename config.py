@@ -9,4 +9,3 @@ class Config:
     LOG_MAX_ENTRIES = 500
     TARGET_APP_PREFIX = "/target"
     DASHBOARD_PREFIX = "/dashboard"
-
