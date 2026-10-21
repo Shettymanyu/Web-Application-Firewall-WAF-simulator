@@ -8,3 +8,4 @@ document.addEventListener("DOMContentLoaded", () => {
   updateCharts();
   setInterval(updateCharts, 5000);
 });
+
