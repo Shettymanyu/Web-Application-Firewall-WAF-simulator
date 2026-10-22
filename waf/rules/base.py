@@ -23,4 +23,3 @@ class BaseRule:
 
     def evaluate(self, waf_request: "WAFRequest") -> Optional[RuleMatch]:
         raise NotImplementedError
-
