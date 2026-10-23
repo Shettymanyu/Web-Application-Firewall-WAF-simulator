@@ -46,4 +46,3 @@ class SQLInjectionRule(BaseRule):
                         pattern=label,
                     )
         return None
-
