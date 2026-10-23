@@ -46,3 +46,4 @@ class CommandInjectionRule(BaseRule):
                         pattern=label,
                     )
         return None
+
