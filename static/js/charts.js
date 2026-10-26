@@ -125,3 +125,4 @@ function updateCharts() {
     })
     .catch(() => {});
 }
+
