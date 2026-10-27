@@ -139,4 +139,3 @@ if __name__ == "__main__":
     print("  Dashboard:  http://127.0.0.1:5000/dashboard")
     print("  Target App: http://127.0.0.1:5000/target\n")
     app.run(debug=True, threaded=True)
-
