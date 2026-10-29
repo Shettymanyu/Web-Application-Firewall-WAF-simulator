@@ -79,4 +79,3 @@ def comment():
         comment=comment_text,
         csrf_token=csrf_token,
     )
-
