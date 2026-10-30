@@ -45,3 +45,4 @@ class PathTraversalRule(BaseRule):
                         pattern=label,
                     )
         return None
+
